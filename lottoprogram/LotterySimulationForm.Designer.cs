@@ -1,6 +1,6 @@
-﻿namespace LotterySimulator
+﻿namespace LotterySimulation
 {
-    partial class MainForm
+    partial class LotterySimulationForm
     {
         /// <summary>
         /// Required designer variable.

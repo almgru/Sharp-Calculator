@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace LotterySimulator
+namespace LotterySimulation
 {
     static class Program
     {
@@ -13,7 +13,7 @@ namespace LotterySimulator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Application.Run(new LotterySimulationForm());
         }
     }
 }

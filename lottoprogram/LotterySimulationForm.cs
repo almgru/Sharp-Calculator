@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace LotterySimulator
+namespace LotterySimulation
 {
     // Used to disable and enable controls depending on the state of the simulation
     enum SimulationState
@@ -28,7 +28,7 @@ namespace LotterySimulator
      * When the simulation is running, the user can cancel the simulation by pressing the
      * cancel button.
      */
-    public partial class MainForm : Form
+    public partial class LotterySimulationForm : Form
     {
         private const int NR_OF_LOTTERY_NUMBERS = 7;
         private const int LOTTERY_MIN_NR = 1;
@@ -39,7 +39,7 @@ namespace LotterySimulator
         // Used to keep track of how long the simulation takes
         private Stopwatch stopwatch;
 
-        public MainForm()
+        public LotterySimulationForm()
         {
             InitializeComponent();
         }
