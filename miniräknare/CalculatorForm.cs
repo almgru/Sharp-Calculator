@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Calculator
@@ -13,20 +7,21 @@ namespace Calculator
     public partial class CalculatorForm : Form
     {
         private CalculatorOperator calcOperator;
-        private string currentOperand;
-        private string firstOperand;
-        private string secondOperand;
+        private CalculatorOperand currentOperand;
+        private double firstOperand;
+        private double secondOperand;
 
         public CalculatorForm()
         {
             InitializeComponent();
+            currentOperand = new CalculatorOperand();
         }
 
         private void UpdateScreen()
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                TextBoxScreen.Text = currentOperand;
+                TextBoxScreen.Text = currentOperand.ToString();
             } else
             {
                 TextBoxScreen.Text =
@@ -34,94 +29,57 @@ namespace Calculator
             }
         }
 
-        private void PerformCalculatorOperation()
+        private void EvaluateCurrentOperation()
         {
             if (calcOperator != CalculatorOperator.None)
             {
-                secondOperand = currentOperand;
+                // Operator requires two arguments?
+                if (calcOperator != CalculatorOperator.Exponentation &&
+                    calcOperator != CalculatorOperator.RootExtraction)
+                {
+                    secondOperand = currentOperand.Finalize();
+                }
 
                 firstOperand =
-                    CalculateResult(calcOperator, firstOperand, secondOperand)
-                    .ToString();
+                    CalculateResult(calcOperator, firstOperand, secondOperand);
 
                 calcOperator = CalculatorOperator.None;
-                currentOperand = firstOperand;
-                secondOperand = null;
+                currentOperand = new CalculatorOperand(firstOperand);
             }
 
             UpdateScreen();
         }
 
         private double CalculateResult(CalculatorOperator op,
-                                     string firstOperand,
-                                     string secondOperand)
+                                     double firstOperand,
+                                     double secondOperand)
         {
             switch (op)
             {
                 case CalculatorOperator.None:
-                    return double.Parse(firstOperand);
+                    return firstOperand;
 
                 case CalculatorOperator.Addition:
-                    return double.Parse(firstOperand) + double.Parse(secondOperand);
+                    return firstOperand + secondOperand;
 
                 case CalculatorOperator.Subtraction:
-                    return double.Parse(firstOperand) - double.Parse(secondOperand);
+                    return firstOperand - secondOperand;
 
                 case CalculatorOperator.Multiplication:
-                    return double.Parse(firstOperand) * double.Parse(secondOperand);
+                    return firstOperand * secondOperand;
 
                 case CalculatorOperator.Division:
-                    return double.Parse(firstOperand) / double.Parse(secondOperand);
+                    return firstOperand / secondOperand;
 
                 case CalculatorOperator.Exponentation:
-                    return Math.Pow(double.Parse(firstOperand), 2);
+                    return Math.Pow(firstOperand, 2);
 
                 case CalculatorOperator.RootExtraction:
-                    return Math.Sqrt(double.Parse(firstOperand));
+                    return Math.Sqrt(firstOperand);
 
                 default:
                     throw new ArgumentException("Unknown operator.");
             }
-        }
-
-        private void AddDigitToCurrentOperand(string digit)
-        {
-            if (currentOperand == null)
-            {
-                currentOperand = "";
-            }
-
-            currentOperand += digit;
-            UpdateScreen();
-        }
-
-        private void AddDecimalPointToCurrentOperand()
-        {
-            if (currentOperand == null)
-            {
-                currentOperand = "";
-            }
-
-            currentOperand += ".";
-            UpdateScreen();
-        }
-
-        private void ChangeCurrentOperandSign()
-        {
-            if (currentOperand == null)
-            {
-                currentOperand = "";
-            }
-
-            if (currentOperand.StartsWith("-"))
-            {
-                currentOperand = currentOperand.Remove(0, 1);
-            } else
-            {
-                currentOperand = currentOperand.Insert(0, "-");
-            }
-
-            UpdateScreen();
         }
 
         private string CalculatorOperatorToString(CalculatorOperator op)
@@ -156,97 +114,109 @@ namespace Calculator
 
         private void Button0_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("0");
+            currentOperand.AddDigit(0);
+            UpdateScreen();
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("1");
+            currentOperand.AddDigit(1);
+            UpdateScreen();
         }
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("2");
+            currentOperand.AddDigit(2);
+            UpdateScreen();
         }
 
         private void Button3_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("3");
+            currentOperand.AddDigit(3);
+            UpdateScreen();
         }
 
         private void Button4_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("4");
+            currentOperand.AddDigit(4);
+            UpdateScreen();
         }
 
         private void Button5_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("5");
+            currentOperand.AddDigit(5);
+            UpdateScreen();
         }
 
         private void Button6_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("6");
+            currentOperand.AddDigit(6);
+            UpdateScreen();
         }
 
         private void Button7_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("7");
+            currentOperand.AddDigit(7);
+            UpdateScreen();
         }
 
         private void Button8_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("8");
+            currentOperand.AddDigit(8);
+            UpdateScreen();
         }
 
         private void Button9_Click(object sender, EventArgs e)
         {
-            AddDigitToCurrentOperand("9");
+            currentOperand.AddDigit(9);
+            UpdateScreen();
         }
 
         private void ButtonDecimalPoint_Click(object sender, EventArgs e)
         {
-            AddDecimalPointToCurrentOperand();
+            currentOperand.AddDecimalPoint();
+            UpdateScreen();
         }
 
         private void ButtonChangeSign_Click(object sender, EventArgs e)
         {
-            ChangeCurrentOperandSign();
+            currentOperand.ChangeSign();
+            UpdateScreen();
         }
 
         private void ButtonPlus_Click(object sender, EventArgs e)
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                firstOperand = currentOperand;
+                firstOperand = currentOperand.Finalize();
             } else
             {
-                PerformCalculatorOperation();
+                EvaluateCurrentOperation();
             }
 
             calcOperator = CalculatorOperator.Addition;
-            currentOperand = "";
+            currentOperand = new CalculatorOperand();
             UpdateScreen();
         }
 
         private void ButtonEquals_Click(object sender, EventArgs e)
         {
-            PerformCalculatorOperation();
+            EvaluateCurrentOperation();
         }
 
         private void ButtonSubtract_Click(object sender, EventArgs e)
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                firstOperand = currentOperand;
+                firstOperand = currentOperand.Finalize();
             }
             else
             {
-                PerformCalculatorOperation();
+                EvaluateCurrentOperation();
             }
 
             calcOperator = CalculatorOperator.Subtraction;
-            currentOperand = "";
+            currentOperand = new CalculatorOperand();
             UpdateScreen();
         }
 
@@ -254,15 +224,15 @@ namespace Calculator
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                firstOperand = currentOperand;
+                firstOperand = currentOperand.Finalize();
             }
             else
             {
-                PerformCalculatorOperation();
+                EvaluateCurrentOperation();
             }
 
             calcOperator = CalculatorOperator.Multiplication;
-            currentOperand = "";
+            currentOperand = new CalculatorOperand();
             UpdateScreen();
         }
 
@@ -270,15 +240,15 @@ namespace Calculator
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                firstOperand = currentOperand;
+                firstOperand = currentOperand.Finalize();
             }
             else
             {
-                PerformCalculatorOperation();
+                EvaluateCurrentOperation();
             }
 
             calcOperator = CalculatorOperator.Division;
-            currentOperand = "";
+            currentOperand = new CalculatorOperand();
             UpdateScreen();
         }
 
@@ -286,16 +256,16 @@ namespace Calculator
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                firstOperand = currentOperand;
+                firstOperand = currentOperand.Finalize();
             }
             else
             {
-                PerformCalculatorOperation();
+                EvaluateCurrentOperation();
             }
 
             calcOperator = CalculatorOperator.RootExtraction;
-            currentOperand = "";
-            PerformCalculatorOperation();
+            currentOperand = new CalculatorOperand();
+            EvaluateCurrentOperation();
             UpdateScreen();
         }
 
@@ -303,26 +273,78 @@ namespace Calculator
         {
             if (calcOperator == CalculatorOperator.None)
             {
-                firstOperand = currentOperand;
+                firstOperand = currentOperand.Finalize();
             }
             else
             {
-                PerformCalculatorOperation();
+                EvaluateCurrentOperation();
             }
 
             calcOperator = CalculatorOperator.Exponentation;
-            currentOperand = "";
-            PerformCalculatorOperation();
+            currentOperand = new CalculatorOperand();
+            EvaluateCurrentOperation();
             UpdateScreen();
         }
 
         private void ButtonClear_Click(object sender, EventArgs e)
         {
             calcOperator = CalculatorOperator.None;
-            firstOperand = null;
-            secondOperand = null;
-            currentOperand = null;
+            currentOperand = new CalculatorOperand();
             UpdateScreen();
+        }
+    }
+
+    class CalculatorOperand
+    {
+        private string digits;
+
+        public CalculatorOperand() 
+        {
+            digits = "";
+        }
+
+        public CalculatorOperand(double startingValue)
+        {
+            digits = startingValue.ToString();
+        }
+
+        public void AddDigit(int digit)
+        {
+            digits += digit;
+        }
+
+        public void AddDecimalPoint()
+        {
+            if (!digits.EndsWith("."))
+            {
+                digits += ".";
+            }
+        }
+
+        public void ChangeSign()
+        {
+            if (digits.StartsWith("-"))
+            {
+                digits = digits.Remove(0, 1);
+            } else
+            {
+                digits = digits.Insert(0, "-");
+            }
+        }
+
+        public double Finalize()
+        {
+            if (digits.EndsWith("."))
+            {
+                digits += "0";
+            }
+
+            return double.Parse(digits.ToString());
+        }
+
+        public override string ToString()
+        {
+            return digits;
         }
     }
 
