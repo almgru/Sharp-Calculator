@@ -59,14 +59,15 @@ namespace Calculator
         {
             if (_operator != null)
             {
-                List<double> operands = new List<double> { previousOperand };
+                List<double> operands = new List<double>();
 
                 // Operator requires two arguments?
                 if (_operator.ExpectedOperandsCount == 2)
                 {
-                    operands.Add(operand.Finalize());
+                    operands.Add(previousOperand);
                 }
-
+                
+                operands.Add(operand.Finalize());
                 operand = new Operand(_operator.Calculate(operands));
                 _operator = null;
 
