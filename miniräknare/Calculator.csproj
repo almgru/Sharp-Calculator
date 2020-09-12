@@ -49,12 +49,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\Calculation.cs" />
     <Compile Include="CalculatorForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CalculatorForm.Designer.cs">
       <DependentUpon>CalculatorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="model\IOperator.cs" />
+    <Compile Include="model\Operand.cs" />
+    <Compile Include="model\operators\AdditionOperator.cs" />
+    <Compile Include="model\operators\DivisionOperator.cs" />
+    <Compile Include="model\operators\ExponentiationOperator.cs" />
+    <Compile Include="model\operators\MultiplicationOperator.cs" />
+    <Compile Include="model\operators\RootExtractionOperator.cs" />
+    <Compile Include="model\operators\SubtractionOperator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CalculatorForm.resx">
