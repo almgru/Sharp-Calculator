@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Calculator.model;
 using Calculator.model.operators;
@@ -114,8 +113,7 @@ namespace Calculator
 
         private void ButtonClear_Click(object sender, EventArgs e)
         {
-            calculation = new Calculation();
-            calculation.AddChangeObserver(this);
+            calculation.Clear();
         }
 
         public void OnCalculationChanged()

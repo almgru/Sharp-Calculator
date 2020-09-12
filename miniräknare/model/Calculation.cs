@@ -74,6 +74,14 @@ namespace Calculator
             }
         }
 
+        public void Clear()
+        {
+            _operator = null;
+            operand = new Operand();
+            previousOperand = 0;
+            NotifyObservers();
+        }
+
         public override string ToString()
         {
             if (_operator == null)
