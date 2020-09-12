@@ -8,25 +8,30 @@ namespace Calculator
         private IOperator _operator;
         private Operand operand;
         private double previousOperand;
+        private List<ICalculationChangedObserver> changeObservers;
 
         public Calculation()
         {
             operand = new Operand();
+            changeObservers = new List<ICalculationChangedObserver>();
         }
 
         public void AddDigit(int digit)
         {
             operand.AddDigit(digit);
+            NotifyObservers();
         }
 
         public void AddDecimalPoint()
         {
             operand.AddDecimalPoint();
+            NotifyObservers();
         }
 
         public void ChangeSign()
         {
             operand.ChangeSign();
+            NotifyObservers();
         }
 
         public void AddOperator(IOperator op)
@@ -46,6 +51,8 @@ namespace Calculator
                 previousOperand = operand.Finalize();
                 operand = new Operand();
             }
+
+            NotifyObservers();
         }
 
         public void Calculate()
@@ -62,6 +69,8 @@ namespace Calculator
 
                 operand = new Operand(_operator.Calculate(operands));
                 _operator = null;
+
+                NotifyObservers();
             }
         }
 
@@ -75,6 +84,19 @@ namespace Calculator
             {
                 return
                     $"{previousOperand} {_operator} {operand}";
+            }
+        }
+
+        public void AddChangeObserver(ICalculationChangedObserver observer)
+        {
+            changeObservers.Add(observer);
+        }
+
+        private void NotifyObservers()
+        {
+            foreach (ICalculationChangedObserver obs in changeObservers)
+            {
+                obs.OnCalculationChanged();
             }
         }
     }

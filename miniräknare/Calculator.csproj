@@ -56,6 +56,7 @@
     <Compile Include="CalculatorForm.Designer.cs">
       <DependentUpon>CalculatorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="model\ICalculationChangedObserver.cs" />
     <Compile Include="model\IOperator.cs" />
     <Compile Include="model\Operand.cs" />
     <Compile Include="model\operators\AdditionOperator.cs" />
