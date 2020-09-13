@@ -36,6 +36,8 @@ namespace Calculator
 
         public void AddOperator(IOperator op)
         {
+            if (!operand.CanFinalize) { return; }
+
             if (_operator != null)
             {
                 Calculate();

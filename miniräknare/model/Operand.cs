@@ -1,8 +1,17 @@
-﻿namespace Calculator.model
+﻿using System.Globalization;
+
+namespace Calculator.model
 {
     class Operand
     {
+        private static readonly string decimalPoint = 
+            CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+        private static readonly string negativeSign =
+            CultureInfo.CurrentCulture.NumberFormat.NegativeSign;
+        
         private string digits;
+
+        public bool CanFinalize => digits.Length > 0 && !digits.EndsWith(decimalPoint);
 
         public Operand()
         {
@@ -21,31 +30,26 @@
 
         public void AddDecimalPoint()
         {
-            if (!digits.EndsWith("."))
+            if (!digits.Contains(decimalPoint) && digits.Length > 0)
             {
-                digits += ".";
+                digits += decimalPoint;
             }
         }
 
         public void ChangeSign()
         {
-            if (digits.StartsWith("-"))
+            if (digits.StartsWith(negativeSign))
             {
                 digits = digits.Remove(0, 1);
             }
             else
             {
-                digits = digits.Insert(0, "-");
+                digits = digits.Insert(0, negativeSign);
             }
         }
 
         public double Finalize()
         {
-            if (digits.EndsWith("."))
-            {
-                digits += "0";
-            }
-
             return double.Parse(digits.ToString());
         }
 
