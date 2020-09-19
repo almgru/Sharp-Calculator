@@ -59,7 +59,7 @@ namespace LotterySimulation
                 return;
             }
 
-            // No need to round, user input is restricted to integers
+            // No need to round or do input validation, control is restricted to integers
             int nrOfDraws = (int)InputNrOfDraws.Value;
 
             SetUIState(SimulationState.Running);
@@ -106,7 +106,7 @@ namespace LotterySimulation
         {
             stopwatch.Stop();
 
-            if (e.Error != null)
+            if (e.Error != null) // Check if the task threw any unhandled exceptions
             {
                 ShowErrorDialog(e.Error.Message);
             }
@@ -257,7 +257,7 @@ namespace LotterySimulation
                 // Get control for lottery number i.
                 NumericUpDown input = GetLotteryNumberInputField(i);
 
-                // No need to round, user input is restricted to integers
+                // No need to round or do input validation, control is restricted to integers
                 int value = (int)input.Value;
 
                 // Validate that each number is unique
@@ -281,10 +281,18 @@ namespace LotterySimulation
         {
             int matches = 0;
             int numbersCount = numbers.Count;
+            List<int> drawnNumbers = new List<int>();
 
             for (int i = 0; i < NR_OF_LOTTERY_NUMBERS; i++)
             {
-                int drawn = random.Next(LOTTERY_MIN_NR, LOTTERY_MAX_NR + 1);
+                int drawn;
+
+                do // Make sure there are no duplicates in the simulated lottery row
+                {
+                    drawn = random.Next(LOTTERY_MIN_NR, LOTTERY_MAX_NR + 1);
+                } while (drawnNumbers.Contains(drawn));
+
+                drawnNumbers.Add(drawn);
 
                 if (numbers.Contains(drawn))
                 {
