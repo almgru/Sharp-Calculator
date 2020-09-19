@@ -2,22 +2,33 @@
 
 namespace Calculator.model
 {
+    /*
+     * An operand is an instance of an argument to an operator. It is stored as a string
+     * until it can be finalized into a double.
+     */
     class Operand
     {
-        private static readonly string decimalPoint = 
+        // Variables used as shorthands for culture dependent decimal separator and negative sign
+        private static readonly string decimalSeparator = 
             CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
         private static readonly string negativeSign =
             CultureInfo.CurrentCulture.NumberFormat.NegativeSign;
         
         private string digits;
 
-        public bool CanFinalize => digits.Length > 0 && !digits.EndsWith(decimalPoint);
+        // Checks whether the operand can be finalized (converted to double)
+        public bool CanFinalize => (
+            digits.Length > 0 &&                    // Must be non-empty..
+            !digits.EndsWith(decimalSeparator) &&   // ..and not be unfinished decimal nr..
+            digits != negativeSign                  // ..and not be unfinished negative nr.
+        );
 
         public Operand()
         {
             digits = "";
         }
 
+        // Alternate constructor which sets a starting value for the operand.
         public Operand(double startingValue)
         {
             digits = startingValue.ToString();
@@ -25,19 +36,34 @@ namespace Calculator.model
 
         public void AddDigit(int digit)
         {
-            digits += digit;
+            if (CanFinalize) // Logic to prevent appending to NaN and Infinity operands
+            {
+                double finalized = Finalize();
+
+                if (!double.IsNaN(finalized) && !double.IsInfinity(finalized)) {
+                    digits += digit;
+                }
+            } else
+            {
+                digits += digit;
+            }
         }
 
         public void AddDecimalPoint()
         {
-            if (!digits.Contains(decimalPoint) && digits.Length > 0)
+            if (digits == "") // Be helpful and add omitted zeroes before decimal separator
             {
-                digits += decimalPoint;
+                digits = $"0{decimalSeparator}";
+            }
+            else if (!digits.Contains(decimalSeparator))
+            {
+                digits += decimalSeparator;
             }
         }
 
         public void ChangeSign()
         {
+            // Toggle sign depending on whether it contains a negative sign
             if (digits.StartsWith(negativeSign))
             {
                 digits = digits.Remove(0, 1);
@@ -48,6 +74,7 @@ namespace Calculator.model
             }
         }
 
+        // Convert the operand to a double
         public double Finalize()
         {
             return double.Parse(digits.ToString());

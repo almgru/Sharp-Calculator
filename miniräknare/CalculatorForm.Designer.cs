@@ -268,6 +268,7 @@
             this.TextBoxScreen.Location = new System.Drawing.Point(4, 4);
             this.TextBoxScreen.Margin = new System.Windows.Forms.Padding(4);
             this.TextBoxScreen.Name = "TextBoxScreen";
+            this.TextBoxScreen.ReadOnly = true;
             this.MainTableLayout.SetRowSpan(this.TextBoxScreen, 2);
             this.TextBoxScreen.Size = new System.Drawing.Size(339, 110);
             this.TextBoxScreen.TabIndex = 20;

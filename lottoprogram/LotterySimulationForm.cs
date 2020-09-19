@@ -65,7 +65,8 @@ namespace LotterySimulation
             SetUIState(SimulationState.Running);
             stopwatch = Stopwatch.StartNew();
 
-            // Run the simulation as a background task in order to not block the UI.
+            // Dispatch the simulation as a background task (in order to not block the UI) and
+            // pass it the user specified lottery row and the number of draws to simulate
             SimulationWorker.RunWorkerAsync(
                 new Tuple<ICollection<int>, int>(numbers, nrOfDraws)
             );

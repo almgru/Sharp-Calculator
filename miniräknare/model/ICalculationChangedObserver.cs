@@ -1,4 +1,6 @@
-﻿namespace Calculator.model
+﻿using System.Collections.ObjectModel;
+
+namespace Calculator.model
 {
     interface ICalculationChangedObserver
     {

@@ -5,10 +5,10 @@ namespace Calculator
 {
     class Calculation
     {
+        private readonly List<ICalculationChangedObserver> changeObservers;
         private IOperator _operator;
         private Operand operand;
         private double previousOperand;
-        private List<ICalculationChangedObserver> changeObservers;
 
         public Calculation()
         {
