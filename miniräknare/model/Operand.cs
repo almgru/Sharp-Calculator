@@ -2,10 +2,8 @@
 
 namespace Calculator.model
 {
-    /*
-     * An operand is an instance of an argument to an operator. It is stored as a string
-     * until it can be finalized into a double.
-     */
+    /* An operand is an instance of an argument to an operator. It is stored as a string
+     * until it can be finalized into a double. */
     class Operand
     {
         // Variables used as shorthands for culture dependent decimal separator and negative sign
@@ -40,10 +38,12 @@ namespace Calculator.model
             {
                 double finalized = Finalize();
 
-                if (!double.IsNaN(finalized) && !double.IsInfinity(finalized)) {
+                if (!double.IsNaN(finalized) && !double.IsInfinity(finalized))
+                {
                     digits += digit;
                 }
-            } else
+            }
+            else
             {
                 digits += digit;
             }

@@ -2,6 +2,8 @@
 
 namespace Calculator.model
 {
+    /* An operator that takes two operand. If the overridden method Calculate is called with 
+     * a single argument, an ArgumentException exception is raised. */
     public abstract class BinaryOperator : Operator
     {
         public override double Calculate(double operand)

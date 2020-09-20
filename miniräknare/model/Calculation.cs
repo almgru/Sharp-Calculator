@@ -6,12 +6,12 @@ namespace Calculator
 {
     /* The central model of the application. A calculation is an abstraction of the ongoing
      * calculation that the user makes during interaction with the calculator. It consists of
-     * a current operand, an operator and, for operatings that require two operands, the previous
+     * a current operand, an operator and - for operators that require two operands - the previous
      * operand. Numbers, decimal separators and negative signs are part of operands, and
      * mathematical operators like plus, minus and square root are operators.
      * 
-     * The core logic works as follows: When the user enters a number, decimal separator or a
-     * negative sign it is appended to the current operand, with the operator at that time unknown.
+     * The core logic works like this: When the user enters a number, decimal separator or a
+     * negative sign it is added to the current operand, with the operator at that time unknown.
      * If the user then enters a unary operator, like square root or power of two, the current
      * operand is finalized (converted into a number) and used as the argument for the unary
      * operator. The unary operator is immediately evaluated and the result stored in the current 
@@ -31,8 +31,7 @@ namespace Calculator
         // List of observers to be notified whenever the calculation is changed.
         private readonly List<ICalculationChangedObserver> changeObservers;
 
-        // The current operator of the calculation
-        private Operator _operator;
+        private Operator _operator; // The current operator of the calculation
 
         /* The current operand of the calculation. Used as first and only argument to unary
          * operators and as the second argument to binary operators. Results are also stored in
@@ -54,6 +53,7 @@ namespace Calculator
         public void AddDigit(int digit)
         {
             operand.AddDigit(digit);
+
             NotifyObservers();
         }
 
@@ -113,7 +113,7 @@ namespace Calculator
          * operator is calculated/evaluated and the result is stored in the current operand. The 
          * current operator is then replaced with 'op'.
          * 
-         * Since 'op' is a binary operator and second operand is not known at the time the
+         * Since 'op' is a binary operator and second operand is _not_ known at the time the
          * operator is added, its calculation is deferred until further input has been received
          * from the user.
          * 
@@ -145,8 +145,7 @@ namespace Calculator
          * The result of the calculation is stored in the current operand.
          * 
          * After calling this method, the current operator will be unset. Any observers will also
-         * be notified that the calculation has changed.
-         */
+         * be notified that the calculation has changed. */
         public void Calculate()
         {
             if (_operator != null)
@@ -158,17 +157,20 @@ namespace Calculator
                  * whether it's a unary or binary operator, I think this is okay in this case. */
                 if (_operator is UnaryOperator)
                 {
+                    // Variables used for readability
                     double argument = operand.Finalize();
 
                     result = _operator.Calculate(argument);
                 }
                 else if (_operator is BinaryOperator)
                 {
+                    // Variables used for readability
                     double firstArgument = previousOperand.Value;
                     double secondArgument = operand.Finalize();
 
                     result = _operator.Calculate(firstArgument, secondArgument);
-                } else
+                }
+                else
                 {
                     throw new InvalidOperationException("Operator has an invalid state.");
                 }
@@ -194,14 +196,16 @@ namespace Calculator
 
         public override string ToString()
         {
+            // If no operator has ben entered, the textual representation will just be the operand
             if (_operator == null)
             {
                 return operand.ToString();
             }
+            /* Otherwise, it will be the previous operand, followed by the operator and finally the
+             * current operand */
             else
             {
-                return
-                    $"{previousOperand} {_operator} {operand}";
+                return $"{previousOperand} {_operator} {operand}";
             }
         }
 

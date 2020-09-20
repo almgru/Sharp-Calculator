@@ -14,8 +14,7 @@ namespace LotterySimulation
         Canceled
     }
 
-    /*
-     * Main form for the lottery simulator program.
+    /* Main form for the lottery simulator program.
      * 
      * The program lets the user select a lottery row, consisting of 7 unique numbers
      * between 1 and 35, and the number of draws that should be simulated. When the user 
@@ -26,8 +25,7 @@ namespace LotterySimulation
      * is displayed.
      * 
      * When the simulation is running, the user can cancel the simulation by pressing the
-     * cancel button.
-     */
+     * cancel button. */
     public partial class LotterySimulationForm : Form
     {
         private const int NR_OF_LOTTERY_NUMBERS = 7;
@@ -65,8 +63,8 @@ namespace LotterySimulation
             SetUIState(SimulationState.Running);
             stopwatch = Stopwatch.StartNew();
 
-            // Dispatch the simulation as a background task (in order to not block the UI) and
-            // pass it the user specified lottery row and the number of draws to simulate
+            /* Dispatch the simulation as a background task (in order to not block the UI) and
+             * pass it the user specified lottery row and the number of draws to simulate */
             SimulationWorker.RunWorkerAsync(
                 new Tuple<ICollection<int>, int>(numbers, nrOfDraws)
             );
@@ -79,15 +77,13 @@ namespace LotterySimulation
             SetUIState(SimulationState.Canceled);
         }
 
-        /*
-         * Called when the background simulation worker is dispatched.
-         */
+        // Called when the background simulation worker is dispatched.
         private void SimulationWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            // PerformSimulation throws OperationCanceledException when canceled, so this needs
-            // to be handled.
+            /* PerformSimulation throws OperationCanceledException when canceled, so this needs
+             * to be handled. */
             try
             {
                 e.Result = PerformSimulation(worker, e);
@@ -98,10 +94,8 @@ namespace LotterySimulation
             }
         }
 
-        /*
-         * Called when the background simulation worker has completed the simulation, or the 
-         * simulation has been cancelled.
-         */
+        /* Called when the background simulation worker has completed the simulation, or the 
+         * simulation has been cancelled. */
         private void SimulationWorker_RunWorkerCompleted(object sender,
                                                          RunWorkerCompletedEventArgs e)
         {
@@ -123,9 +117,7 @@ namespace LotterySimulation
             }
         }
 
-        /*
-         * Called when a worker reports progress. Updates progress bar.
-         */
+        // Called when a worker reports progress. Updates progress bar.
         private void SimulationWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             ProgressBar.Value = e.ProgressPercentage;
@@ -133,41 +125,47 @@ namespace LotterySimulation
         #endregion
 
         #region UI methods
-        /*
-         * Enables or disables UI controls depending the state of the simulation.
-         */
+        // Enables or disables UI controls depending the state of the simulation.
         private void SetUIState(SimulationState state)
         {
             switch (state)
             {
                 case SimulationState.Running:
-                    SetInputFieldsEnabled(false);
-                    ClearOutputFields();
-                    ProgressBar.Value = ProgressBar.Minimum;
-                    ButtonBeginSimulation.Enabled = false;
-                    ButtonCancelSimulation.Enabled = true;
-                    LabelProgress.Text = "Simulerar dragningar. Vänligen vänta...";
-                    break;
+                    {
+                        SetInputFieldsEnabled(false);
+                        ClearOutputFields();
+                        ProgressBar.Value = ProgressBar.Minimum;
+                        ButtonBeginSimulation.Enabled = false;
+                        ButtonCancelSimulation.Enabled = true;
+                        LabelProgress.Text = "Simulerar dragningar. Vänligen vänta...";
+                        break;
+                    }
 
                 case SimulationState.Completed:
-                    SetInputFieldsEnabled(true);
-                    ButtonBeginSimulation.Enabled = true;
-                    ButtonCancelSimulation.Enabled = false;
-                    ProgressBar.Value = ProgressBar.Maximum;
-                    LabelProgress.Text = 
-                        $"Simulering färdig efter {stopwatch.ElapsedMilliseconds / 1000.0} sek.";
-                    break;
+                    {
+                        SetInputFieldsEnabled(true);
+                        ButtonBeginSimulation.Enabled = true;
+                        ButtonCancelSimulation.Enabled = false;
+                        ProgressBar.Value = ProgressBar.Maximum;
+                        LabelProgress.Text =
+                            $"Simulering färdig efter {stopwatch.ElapsedMilliseconds / 1000.0} sek.";
+                        break;
+                    }
 
                 case SimulationState.Canceled:
-                    SetInputFieldsEnabled(true);
-                    ButtonBeginSimulation.Enabled = true;
-                    ButtonCancelSimulation.Enabled = false;
-                    ProgressBar.Value = ProgressBar.Maximum;
-                    LabelProgress.Text = "Simulering avbruten.";
-                    break;
+                    {
+                        SetInputFieldsEnabled(true);
+                        ButtonBeginSimulation.Enabled = true;
+                        ButtonCancelSimulation.Enabled = false;
+                        ProgressBar.Value = ProgressBar.Maximum;
+                        LabelProgress.Text = "Simulering avbruten.";
+                        break;
+                    }
 
                 default:
-                    throw new ArgumentException("Unknown simulation state.");
+                    {
+                        throw new ArgumentException("Unknown simulation state.");
+                    }
             }
         }
 
@@ -240,15 +238,13 @@ namespace LotterySimulation
 
         #endregion
 
-        /*
-         *  Collects the lotto numbers from the input controls and validates them.
+        /* Collects the lotto numbers from the input controls and validates them.
          *  
-         *  Since the controls themselves handle most of the validation (only integer, 
-         *  min/max value, etc.), the only validation that is required here is checking for 
-         *  duplicated numbers.
+         * Since the controls themselves handle most of the validation (only integer,  min/max
+         * value, etc.), the only validation that is required here is checking for duplicated
+         * numbers.
          *  
-         *  Throws ArgumentException if validation fails.
-         */
+         * Throws ArgumentException if validation fails. */
         private List<int> GetLotteryRow()
         {
             List<int> numbers = new List<int>();
@@ -273,11 +269,9 @@ namespace LotterySimulation
             return numbers;
         }
 
-        /*
-         * Given a collection of 7 unique numbers, simulates a lottery draw and returns the 
+        /* Given a collection of 7 unique numbers, simulates a lottery draw and returns the 
          * number of matching numbers. Only returns a meaningful result if at least 'atLeast'
-         * numbers match.
-         */
+         * numbers match. */
         private int PerformDraw(Random random, ICollection<int> numbers, int atLeast)
         {
             int matches = 0;
@@ -300,8 +294,8 @@ namespace LotterySimulation
                     matches++;
                 }
 
-                // Optimization: Do not continue if it's not possible to get at least 'atLeast' 
-                // matching numbers.
+                /* Optimization: Do not continue if it's not possible to get at least 'atLeast' 
+                 * matching numbers. */
                 if (numbersCount - i - 1 < atLeast - matches)
                 {
                     break;
@@ -311,16 +305,14 @@ namespace LotterySimulation
             return matches;
         }
 
-        /*
-         * Starts the simulation and perform n draws, where n is the user specified nr of draws.
+        /* Starts the simulation and perform n draws, where n is the user specified nr of draws.
          * 
          * Returns a dictionary where the keys are numbers between 5 and 7 and the values are
          * the number of draws that had that number of matching numbers. For example key 5 in
          * the dictionary stores the number of simulated draws that had that had 5 matching 
          * numbers.
          * 
-         * Throws OperationCanceledException if the user cancels the simulation.
-         */
+         * Throws OperationCanceledException if the user cancels the simulation. */
         private Dictionary<int, int> PerformSimulation(BackgroundWorker worker, DoWorkEventArgs e)
         {
             // Extract arguments from event
@@ -337,8 +329,8 @@ namespace LotterySimulation
             };
             Random random = new Random();
 
-            // Used to keep track of how much progress has been made since the progress bar was
-            // last updated.
+            /* Used to keep track of how much progress has been made since the progress bar was
+             * last updated. */
             int previousPercentage = 0;
 
             for (int i = 0; i < nrOfDraws; i++)
@@ -346,12 +338,13 @@ namespace LotterySimulation
                 // Cancel the task if the user has pressed the cancel button.
                 if (worker.CancellationPending)
                 {
-                    // Abort the task by raising an exception. We could have just breaked out of
-                    // the loop and it would have the same effect. That would have returned a
-                    // result though, which I feel is the wrong approach. Returning null would
-                    // also work, but I think it's more explicit to raise an exception.
+                    /* Abort the task by raising an exception. We could have just breaked out of
+                     * the loop and it would have the same effect. That would have returned a
+                     * result though, which I feel is the wrong approach. Returning null would
+                     * also work, but I think it's more explicit to raise an exception. */
                     throw new OperationCanceledException();
-                } else // Otherwise, simulate a lottery draw and report progress
+                }
+                else // Otherwise, simulate a lottery draw and report progress
                 {
                     int numberOfMatches = PerformDraw(random, lotteryNumbers, MIN_MATCHES);
 

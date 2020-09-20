@@ -1,5 +1,6 @@
 ﻿namespace Calculator.model.operators
 {
+    // Binary operator that adds two operands.
     class AdditionOperator : BinaryOperator
     {
         public override double Calculate(double operand1, double operand2)
