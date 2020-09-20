@@ -62,9 +62,9 @@
     <Compile Include="model\Operand.cs" />
     <Compile Include="model\operators\AdditionOperator.cs" />
     <Compile Include="model\operators\DivisionOperator.cs" />
-    <Compile Include="model\operators\ExponentiationOperator.cs" />
+    <Compile Include="model\operators\PowerOfTwoOperator.cs" />
     <Compile Include="model\operators\MultiplicationOperator.cs" />
-    <Compile Include="model\operators\RootExtractionOperator.cs" />
+    <Compile Include="model\operators\SquareRootOperator.cs" />
     <Compile Include="model\operators\SubtractionOperator.cs" />
     <Compile Include="model\UnaryOperator.cs" />
     <Compile Include="Program.cs" />

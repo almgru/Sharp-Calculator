@@ -2,7 +2,7 @@
 
 namespace Calculator.model.operators
 {
-    class RootExtractionOperator : UnaryOperator
+    class SquareRootOperator : UnaryOperator
     {
         public override double Calculate(double operand)
         {

@@ -13,13 +13,14 @@ namespace Calculator
      * The core logic works as follows: When the user enters a number, decimal separator or a
      * negative sign it is appended to the current operand, with the operator at that time unknown.
      * If the user then enters a unary operator, like square root or power of two, the current
-     * operand is finalized (converted into a number) and the unary operator is immediately
-     * evaluated and the result stored in the current operand. If the user enters a binary operator
-     * like addition or multiplication, the current operand is finalized and stored as the previous
-     * operand, which will later be used as the first argument to the operator. A new operand is
-     * then instanciated and set as the current operand, and this operand will later be used as
-     * the second operand to the operator. The binary operator is then finally evaluated either
-     * when the user clicks the equal button, or if they enter another operator.
+     * operand is finalized (converted into a number) and used as the argument for the unary
+     * operator. The unary operator is immediately evaluated and the result stored in the current 
+     * operand. If the user enters a binary operator like addition or multiplication, the current
+     * operand is finalized and stored as the previous operand, which will later be used as the 
+     * first argument to the operator. A new operand is then instanciated and set as the current
+     * operand, and this operand will later be used as the second operand to the operator. The 
+     * binary operator is then finally evaluated either when the user clicks the equal button, or
+     * if they enter another operator.
      * 
      * The calculation also allows for registering observers that are notified whenever the
      * calculation is changed in any way, for example if an operator is appended to or if the
@@ -40,7 +41,7 @@ namespace Calculator
         private Operand operand;
 
         /* The previous, finalized, operand. For binary operators, this is used as the first
-         * argument. */
+         * argument. A nullable type is used to identify whether the value is unset. */
         private double? previousOperand;
 
         public Calculation()
@@ -57,9 +58,10 @@ namespace Calculator
         }
 
         // Adds a decimal separator to the current operand and notifies the observers.
-        public void AddDecimalPoint()
+        public void AddDecimalSeparator()
         {
-            operand.AddDecimalPoint();
+            operand.AddDecimalSeparator();
+
             NotifyObservers();
         }
 
@@ -68,59 +70,72 @@ namespace Calculator
         public void ChangeSign()
         {
             operand.ChangeSign();
+
             NotifyObservers();
         }
 
-        /* Adds an operator 'op' to the calculation if the current operand can be finalized. If the
-         * current operand cannot be finalized - for example if it ends with a decimal separator -
-         * calling this method does nothing.
+        /* Called when AddOperator is called with a unary operator. Adds operator 'op' to the 
+         * calculation if the current operand can be finalized. If the current operand cannot be
+         * finalized - for example if it ends with a decimal separator, calling this method does
+         * nothing.
          * 
          * If the calculation contains an existing operator when this method is called, that
-         * operator is calculated/evaluated with the current operand and optionally the previous
-         * operand, and the result is stored in the current operand. The current operator is then
-         * replaced with 'op'.
+         * operator is calculated/evaluated and the result is stored in the current operand. The
+         * current operator is then replaced with 'op'.
          * 
-         * If 'op' is a unary operator, it is immediately calculated and the result stored in the
-         * current operand.
+         * Since 'op' is a unary operator and its operand is known at the time the operator is
+         * added, it is immediately calculated and the result stored in the current operand.
          * 
          * Any observers are finally notified that the calculation has changed. */
         public void AddOperator(UnaryOperator op)
         {
-            /* Do nothing if the current operand cannot be finalized, and therefore cannot be used
-             * as an argument/operand to the operator */
-            if (!operand.CanFinalize) { return; }
-
-            // Handle any existing operator if it exists
-            if (_operator != null)
+            if (operand.CanFinalize)
             {
+                // Handle any existing operator if it exists
+                if (_operator != null)
+                {
+                    Calculate();
+                }
+
+                _operator = op;
                 Calculate();
+
+                NotifyObservers();
             }
-
-            _operator = op;
-            Calculate();
-
-            NotifyObservers();
         }
 
+        /* Called when AddOperator is called with a binary operator. Adds operator 'op' to the 
+         * calculation if the current operand can be finalized. If the current operand cannot be
+         * finalized - for example if it ends with a decimal separator, calling this method does
+         * nothing.
+         * 
+         * If the calculation contains an existing operator when this method is called, that
+         * operator is calculated/evaluated and the result is stored in the current operand. The 
+         * current operator is then replaced with 'op'.
+         * 
+         * Since 'op' is a binary operator and second operand is not known at the time the
+         * operator is added, its calculation is deferred until further input has been received
+         * from the user.
+         * 
+         * Any observers are finally notified that the calculation has changed. */
         public void AddOperator(BinaryOperator op)
         {
-            /* Do nothing if the current operand cannot be finalized, and therefore cannot be used
-             * as an argument/operand to the operator */
-            if (!operand.CanFinalize) { return; }
-
-            // Handle any existing operator if it exists
-            if (_operator != null)
+            if (operand.CanFinalize)
             {
-                Calculate();
+                // Handle any existing operator if it exists
+                if (_operator != null)
+                {
+                    Calculate();
+                }
+
+                _operator = op;
+
+                // Store the current operand and create a new one
+                previousOperand = operand.Finalize();
+                operand = new Operand();
+
+                NotifyObservers();
             }
-
-            _operator = op;
-
-            // Store the current operand and create a new one
-            previousOperand = operand.Finalize();
-            operand = new Operand();
-
-            NotifyObservers();
         }
 
         /* Calculates or evaluates the current operator using the current and optionally the
@@ -143,18 +158,26 @@ namespace Calculator
                  * whether it's a unary or binary operator, I think this is okay in this case. */
                 if (_operator is UnaryOperator)
                 {
-                    result = _operator.Calculate(operand.Finalize());
+                    double argument = operand.Finalize();
+
+                    result = _operator.Calculate(argument);
                 }
                 else if (_operator is BinaryOperator)
                 {
-                    result = _operator.Calculate(previousOperand.Value, operand.Finalize());
+                    double firstArgument = previousOperand.Value;
+                    double secondArgument = operand.Finalize();
+
+                    result = _operator.Calculate(firstArgument, secondArgument);
                 } else
                 {
                     throw new InvalidOperationException("Operator has an invalid state.");
                 }
 
+                // Create a new operand with the result of the calculation as a starting point
                 operand = new Operand(result);
+
                 _operator = null;
+
                 NotifyObservers();
             }
         }
@@ -165,6 +188,7 @@ namespace Calculator
             _operator = null;
             operand = new Operand();
             previousOperand = null;
+
             NotifyObservers();
         }
 
@@ -188,6 +212,7 @@ namespace Calculator
             changeObservers.Add(observer);
         }
 
+        // Notifies any observers that the calculation has changed.
         private void NotifyObservers()
         {
             foreach (ICalculationChangedObserver obs in changeObservers)

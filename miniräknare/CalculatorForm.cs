@@ -90,7 +90,7 @@ namespace Calculator
 
         private void ButtonDecimalPoint_Click(object sender, EventArgs e)
         {
-            calculation.AddDecimalPoint();
+            calculation.AddDecimalSeparator();
         }
 
         private void ButtonChangeSign_Click(object sender, EventArgs e)
@@ -120,12 +120,12 @@ namespace Calculator
 
         private void ButtonRootExtraction_Click(object sender, EventArgs e)
         {
-            calculation.AddOperator(new RootExtractionOperator());
+            calculation.AddOperator(new SquareRootOperator());
         }
 
         private void ButtonExponentiation_Click(object sender, EventArgs e)
         {
-            calculation.AddOperator(new ExponentiationOperator());
+            calculation.AddOperator(new PowerOfTwoOperator());
         }
 
         private void ButtonEquals_Click(object sender, EventArgs e)

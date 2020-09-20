@@ -2,7 +2,7 @@
 
 namespace Calculator.model.operators
 {
-    class ExponentiationOperator : UnaryOperator
+    class PowerOfTwoOperator : UnaryOperator
     {
         public override double Calculate(double operand)
         {

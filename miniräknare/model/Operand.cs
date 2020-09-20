@@ -49,7 +49,7 @@ namespace Calculator.model
             }
         }
 
-        public void AddDecimalPoint()
+        public void AddDecimalSeparator()
         {
             if (digits == "") // Be helpful and add omitted zeroes before decimal separator
             {
