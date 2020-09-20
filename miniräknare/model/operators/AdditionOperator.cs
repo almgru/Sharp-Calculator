@@ -1,4 +1,7 @@
-﻿namespace Calculator.model.operators
+﻿using System;
+using System.ComponentModel;
+
+namespace Calculator.model.operators
 {
     // Binary operator that adds two operands.
     class AdditionOperator : BinaryOperator

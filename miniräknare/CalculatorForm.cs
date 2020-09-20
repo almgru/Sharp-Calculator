@@ -10,7 +10,10 @@ namespace Calculator
      * 
      * Implements ICalculationChangedObserver in order to update the calculator screen whenever
      * the calculation model changes. */
-    public partial class CalculatorForm : Form, ICalculationChangedObserver
+    public partial class CalculatorForm : 
+        Form,
+        ICalculationChangedObserver,
+        IArithmeticExceptionObserver
     {
         /* The calculation is readonly and is in practice a singleton in the sense that only one
          * instance of Calculation is created. Previously a new calculation was created when
@@ -32,6 +35,8 @@ namespace Calculator
              * reason for using the observer pattern here is to avoid duplicated code updating
              * the screen in each button clicked method. */
             calculation.AddChangeObserver(this);
+
+            calculation.AddArithmeticExceptionObserver(this);
         }
 
         private void Button0_Click(object sender, EventArgs e)
@@ -137,6 +142,29 @@ namespace Calculator
         public void OnCalculationChanged()
         {
             TextBoxScreen.Text = calculation.ToString();
+        }
+
+        public void OnDivideByZeroException()
+        {
+            ShowErrorDialog("Division med noll är odefinierat.");
+            calculation.Clear();
+        }
+
+        public void OnOverflowException()
+        {
+            ShowErrorDialog("Resultatet var för stort eller för litet.");
+            calculation.Clear();
+        }
+
+        private void ShowErrorDialog(string message)
+        {
+            MessageBox.Show(
+                this,
+                message,
+                "Felmeddelande",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error
+            );
         }
     }
 }

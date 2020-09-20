@@ -30,6 +30,7 @@ namespace Calculator
     {
         // List of observers to be notified whenever the calculation is changed.
         private readonly List<ICalculationChangedObserver> changeObservers;
+        private readonly List<IArithmeticExceptionObserver> arithmeticExceptionObservers;
 
         private Operator _operator; // The current operator of the calculation
 
@@ -47,6 +48,7 @@ namespace Calculator
         {
             operand = new Operand();
             changeObservers = new List<ICalculationChangedObserver>();
+            arithmeticExceptionObservers = new List<IArithmeticExceptionObserver>();
         }
 
         // Adds 'digit' to the current operand and notifies the observers.
@@ -54,7 +56,7 @@ namespace Calculator
         {
             operand.AddDigit(digit);
 
-            NotifyObservers();
+            NotifyChangeObservers();
         }
 
         // Adds a decimal separator to the current operand and notifies the observers.
@@ -62,7 +64,7 @@ namespace Calculator
         {
             operand.AddDecimalSeparator();
 
-            NotifyObservers();
+            NotifyChangeObservers();
         }
 
         /* Changes the sign (positive to negative and negative to positive) of the current operand
@@ -71,7 +73,7 @@ namespace Calculator
         {
             operand.ChangeSign();
 
-            NotifyObservers();
+            NotifyChangeObservers();
         }
 
         /* Called when AddOperator is called with a unary operator. Adds operator 'op' to the 
@@ -100,7 +102,7 @@ namespace Calculator
                 _operator = op;
                 Calculate();
 
-                NotifyObservers();
+                NotifyChangeObservers();
             }
         }
 
@@ -134,7 +136,7 @@ namespace Calculator
                 previousOperand = operand.Finalize();
                 operand = new Operand();
 
-                NotifyObservers();
+                NotifyChangeObservers();
             }
         }
 
@@ -168,19 +170,36 @@ namespace Calculator
                     double firstArgument = previousOperand.Value;
                     double secondArgument = operand.Finalize();
 
-                    result = _operator.Calculate(firstArgument, secondArgument);
+                    try
+                    {
+                        result = _operator.Calculate(firstArgument, secondArgument);
+                    }
+                    catch (DivideByZeroException)
+                    {
+                        NotifyExceptionObserversOfDivideByZero();
+                        return;
+                    }
                 }
                 else
                 {
                     throw new InvalidOperationException("Operator has an invalid state.");
                 }
 
-                // Create a new operand with the result of the calculation as a starting point
-                operand = new Operand(result);
+                /* Overflow is checked here instead of in the operator classes to avoid duplicate
+                 * code. */
+                if (double.IsInfinity(result))
+                {
+                    NotifyExceptionObserversOfOverflow();
+                }
+                else
+                {
+                    // Create a new operand with the result of the calculation as a starting point
+                    operand = new Operand(result);
 
-                _operator = null;
+                    _operator = null;
 
-                NotifyObservers();
+                    NotifyChangeObservers();
+                }
             }
         }
 
@@ -191,7 +210,7 @@ namespace Calculator
             operand = new Operand();
             previousOperand = null;
 
-            NotifyObservers();
+            NotifyChangeObservers();
         }
 
         public override string ToString()
@@ -216,12 +235,33 @@ namespace Calculator
             changeObservers.Add(observer);
         }
 
+        public void AddArithmeticExceptionObserver(IArithmeticExceptionObserver observer)
+        {
+            arithmeticExceptionObservers.Add(observer);
+        }
+
         // Notifies any observers that the calculation has changed.
-        private void NotifyObservers()
+        private void NotifyChangeObservers()
         {
             foreach (ICalculationChangedObserver obs in changeObservers)
             {
                 obs.OnCalculationChanged();
+            }
+        }
+
+        private void NotifyExceptionObserversOfDivideByZero()
+        {
+            foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
+            {
+                observer.OnDivideByZeroException();
+            }
+        }
+
+        private void NotifyExceptionObserversOfOverflow()
+        {
+            foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
+            {
+                observer.OnOverflowException();
             }
         }
     }
