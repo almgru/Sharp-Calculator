@@ -1,4 +1,5 @@
 ﻿using Calculator.model;
+using System;
 using System.Collections.Generic;
 
 namespace Calculator
@@ -30,7 +31,7 @@ namespace Calculator
         private readonly List<ICalculationChangedObserver> changeObservers;
 
         // The current operator of the calculation
-        private IOperator _operator;
+        private Operator _operator;
 
         /* The current operand of the calculation. Used as first and only argument to unary
          * operators and as the second argument to binary operators. Results are also stored in
@@ -40,7 +41,7 @@ namespace Calculator
 
         /* The previous, finalized, operand. For binary operators, this is used as the first
          * argument. */
-        private double previousOperand;
+        private double? previousOperand;
 
         public Calculation()
         {
@@ -83,7 +84,25 @@ namespace Calculator
          * current operand.
          * 
          * Any observers are finally notified that the calculation has changed. */
-        public void AddOperator(IOperator op)
+        public void AddOperator(UnaryOperator op)
+        {
+            /* Do nothing if the current operand cannot be finalized, and therefore cannot be used
+             * as an argument/operand to the operator */
+            if (!operand.CanFinalize) { return; }
+
+            // Handle any existing operator if it exists
+            if (_operator != null)
+            {
+                Calculate();
+            }
+
+            _operator = op;
+            Calculate();
+
+            NotifyObservers();
+        }
+
+        public void AddOperator(BinaryOperator op)
         {
             /* Do nothing if the current operand cannot be finalized, and therefore cannot be used
              * as an argument/operand to the operator */
@@ -97,16 +116,9 @@ namespace Calculator
 
             _operator = op;
 
-            // New operator can be immediately calculated?
-            if (_operator.ExpectedOperandsCount == 1)
-            {
-                Calculate();
-            } else
-            {
-                // Store the current operand and create a new one
-                previousOperand = operand.Finalize();
-                operand = new Operand();
-            }
+            // Store the current operand and create a new one
+            previousOperand = operand.Finalize();
+            operand = new Operand();
 
             NotifyObservers();
         }
@@ -124,18 +136,25 @@ namespace Calculator
         {
             if (_operator != null)
             {
-                List<double> operands = new List<double>();
+                double result;
 
-                // Operator requires two arguments?
-                if (_operator.ExpectedOperandsCount == 2)
+                /* Checking for an instance of an object is usually a code smell. However, since
+                 * the operator needs to be called with different number of arguments depending on
+                 * whether it's a unary or binary operator, I think this is okay in this case. */
+                if (_operator is UnaryOperator)
                 {
-                    operands.Add(previousOperand);
+                    result = _operator.Calculate(operand.Finalize());
                 }
-                
-                operands.Add(operand.Finalize());
-                operand = new Operand(_operator.Calculate(operands));
-                _operator = null;
+                else if (_operator is BinaryOperator)
+                {
+                    result = _operator.Calculate(previousOperand.Value, operand.Finalize());
+                } else
+                {
+                    throw new InvalidOperationException("Operator has an invalid state.");
+                }
 
+                operand = new Operand(result);
+                _operator = null;
                 NotifyObservers();
             }
         }
@@ -145,7 +164,7 @@ namespace Calculator
         {
             _operator = null;
             operand = new Operand();
-            previousOperand = 0;
+            previousOperand = null;
             NotifyObservers();
         }
 

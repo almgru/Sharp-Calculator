@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Calculator.model.operators
 {
-    class RootExtractionOperator : IOperator
+    class RootExtractionOperator : UnaryOperator
     {
-        public int ExpectedOperandsCount => 1;
-
-        public double Calculate(ICollection<double> operands)
+        public override double Calculate(double operand)
         {
-            return Math.Sqrt(operands.ElementAt(0));
+            return Math.Sqrt(operand);
         }
 
         public override string ToString()

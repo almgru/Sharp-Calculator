@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Calculator.model.operators
 {
-    class ExponentiationOperator : IOperator
+    class ExponentiationOperator : UnaryOperator
     {
-        public int ExpectedOperandsCount => 1;
-
-        public double Calculate(ICollection<double> operands)
+        public override double Calculate(double operand)
         {
-            return Math.Pow(operands.ElementAt(0), 2);
+            return Math.Pow(operand, 2);
         }
 
         public override string ToString()

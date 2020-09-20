@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Calculator.model.operators
+﻿namespace Calculator.model.operators
 {
-    class SubtractionOperator : IOperator
+    class SubtractionOperator : BinaryOperator
     {
-        public int ExpectedOperandsCount => 2;
-
-        public double Calculate(ICollection<double> operands)
+        public override double Calculate(double operand1, double operand2)
         {
-            return operands.ElementAt(0) - operands.ElementAt(1);
+            return operand1 - operand2;
         }
 
         public override string ToString()
