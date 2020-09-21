@@ -7,6 +7,11 @@ namespace Calculator.model.operators
     {
         public override double Calculate(double operand)
         {
+            if (operand < 0)
+            {
+                throw new NotFiniteNumberException();
+            }
+
             return Math.Sqrt(operand);
         }
 

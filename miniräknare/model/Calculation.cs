@@ -99,7 +99,9 @@ namespace Calculator
                     Calculate();
                 }
 
+                Operator previousOperator = _operator;
                 _operator = op;
+
                 Calculate();
 
                 NotifyChangeObservers();
@@ -162,7 +164,16 @@ namespace Calculator
                     // Variables used for readability
                     double argument = operand.Finalize();
 
-                    result = _operator.Calculate(argument);
+                    try
+                    {
+                        result = _operator.Calculate(argument);
+                    }
+                    catch (NotFiniteNumberException)
+                    {
+                        NotifyExceptionObserverOfNegativeSquareRoot();
+                        _operator = null;
+                        return;
+                    }
                 }
                 else if (_operator is BinaryOperator)
                 {
@@ -177,6 +188,8 @@ namespace Calculator
                     catch (DivideByZeroException)
                     {
                         NotifyExceptionObserversOfDivideByZero();
+                        operand = new Operand();
+                        NotifyChangeObservers();
                         return;
                     }
                 }
@@ -190,6 +203,7 @@ namespace Calculator
                 if (double.IsInfinity(result))
                 {
                     NotifyExceptionObserversOfOverflow();
+                    _operator = null;
                 }
                 else
                 {
@@ -253,7 +267,7 @@ namespace Calculator
         {
             foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
             {
-                observer.OnDivideByZeroException();
+                observer.OnDivideByZero();
             }
         }
 
@@ -261,7 +275,15 @@ namespace Calculator
         {
             foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
             {
-                observer.OnOverflowException();
+                observer.OnOverflow();
+            }
+        }
+
+        private void NotifyExceptionObserverOfNegativeSquareRoot()
+        {
+            foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
+            {
+                observer.OnNegativeSquareRoot();
             }
         }
     }

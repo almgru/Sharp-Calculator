@@ -144,16 +144,22 @@ namespace Calculator
             TextBoxScreen.Text = calculation.ToString();
         }
 
-        public void OnDivideByZeroException()
+        public void OnDivideByZero()
         {
             ShowErrorDialog("Division med noll är odefinierat.");
-            calculation.Clear();
         }
 
-        public void OnOverflowException()
+        public void OnOverflow()
         {
-            ShowErrorDialog("Resultatet var för stort eller för litet.");
-            calculation.Clear();
+            ShowErrorDialog(
+                "Operationen resulterade i ett tal som var för stort eller för litet för att " +
+                "kunna visas."
+             );
+        }
+
+        public void OnNegativeSquareRoot()
+        {
+            ShowErrorDialog("Roten ur negativa tal är odefinierat för reella tal.");
         }
 
         private void ShowErrorDialog(string message)
