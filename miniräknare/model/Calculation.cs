@@ -152,7 +152,7 @@ namespace Calculator
          * be notified that the calculation has changed. */
         public void Calculate()
         {
-            if (_operator != null)
+            if (_operator != null && operand.CanFinalize)
             {
                 double result;
 
@@ -267,7 +267,7 @@ namespace Calculator
         {
             foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
             {
-                observer.OnDivideByZero();
+                observer.OnDivideByZeroException();
             }
         }
 
@@ -275,7 +275,7 @@ namespace Calculator
         {
             foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
             {
-                observer.OnOverflow();
+                observer.OnOverflowException();
             }
         }
 
@@ -283,7 +283,7 @@ namespace Calculator
         {
             foreach (IArithmeticExceptionObserver observer in arithmeticExceptionObservers)
             {
-                observer.OnNegativeSquareRoot();
+                observer.OnNegativeSquareRootException();
             }
         }
     }

@@ -4,8 +4,8 @@ namespace Calculator.model
 {
     interface IArithmeticExceptionObserver
     {
-        void OnDivideByZero();
-        void OnOverflow();
-        void OnNegativeSquareRoot();
+        void OnDivideByZeroException();
+        void OnOverflowException();
+        void OnNegativeSquareRootException();
     }
 }
