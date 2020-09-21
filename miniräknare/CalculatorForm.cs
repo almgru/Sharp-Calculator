@@ -172,5 +172,126 @@ namespace Calculator
                 MessageBoxIcon.Error
             );
         }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.D0:
+                case Keys.NumPad0:
+                    {
+                        Button0_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D1:
+                case Keys.NumPad1:
+                    {
+                        Button1_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D2:
+                case Keys.NumPad2:
+                    {
+                        Button2_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D3:
+                case Keys.NumPad3:
+                    {
+                        Button3_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D4:
+                case Keys.NumPad4:
+                    {
+                        Button4_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D5:
+                case Keys.NumPad5:
+                    {
+                        Button5_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D6:
+                case Keys.NumPad6:
+                    {
+                        Button6_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D7:
+                case Keys.NumPad7:
+                    {
+                        Button7_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D8:
+                case Keys.NumPad8:
+                    {
+                        Button8_Click(null, null);
+                        break;
+                    }
+
+                case Keys.D9:
+                case Keys.NumPad9:
+                    {
+                        Button9_Click(null, null);
+                        break;
+                    }
+
+                case Keys.Decimal:
+                    {
+                        ButtonDecimalPoint_Click(null, null);
+                        break;
+                    }
+
+                case Keys.Add:
+                    {
+                        ButtonPlus_Click(null, null);
+                        break;
+                    }
+
+                case Keys.Subtract:
+                    {
+                        ButtonSubtract_Click(null, null);
+                        break;
+                    }
+
+                case Keys.Multiply:
+                    {
+                        ButtonMultiply_Click(null, null);
+                        break;
+                    }
+
+                case Keys.Divide:
+                    {
+                        ButtonDivide_Click(null, null);
+                        break;
+                    }
+
+                case Keys.Back:
+                case Keys.Delete:
+                    {
+                        ButtonClear_Click(null, null);
+                        break;
+                    }
+
+                default:
+                    {
+                        break;
+                    }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
     }
 }
