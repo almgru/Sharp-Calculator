@@ -96,13 +96,17 @@ namespace Calculator
                 // Handle any existing operator if it exists
                 if (_operator != null)
                 {
+                    if (Calculate())
+                    {
+                        _operator = op;
+                        Calculate();
+                    }
+                }
+                else
+                {
+                    _operator = op;
                     Calculate();
                 }
-
-                Operator previousOperator = _operator;
-                _operator = op;
-
-                Calculate();
 
                 NotifyChangeObservers();
             }
@@ -126,20 +130,53 @@ namespace Calculator
         {
             if (operand.CanFinalize)
             {
-                // Handle any existing operator if it exists
-                if (_operator != null)
+                if (Calculate())
                 {
-                    Calculate();
+                    _operator = op;
+
+                    // Store the current operand and create a new one
+                    previousOperand = operand.Finalize();
+                    operand = new Operand();
                 }
-
-                _operator = op;
-
-                // Store the current operand and create a new one
-                previousOperand = operand.Finalize();
-                operand = new Operand();
 
                 NotifyChangeObservers();
             }
+        }
+
+        /* Publicly exposed wrapper around Evaluate that handles exceptions.
+         * 
+         * Returns a bool indicating if it was possible to perform the calculation. */
+        public bool Calculate()
+        {
+            try
+            {
+                Evaluate();
+            }
+            catch (DivideByZeroException)
+            {
+                NotifyExceptionObserversOfDivideByZero();
+                operand = new Operand();
+
+                return false;
+            }
+            catch (OverflowException)
+            {
+                NotifyExceptionObserversOfOverflow();
+                _operator = null;
+
+                return false;
+            }
+            catch (NotFiniteNumberException)
+            {
+                NotifyExceptionObserverOfNegativeSquareRoot();
+                _operator = null;
+
+                return false;
+            }
+
+            NotifyChangeObservers();
+
+            return true;
         }
 
         /* Calculates or evaluates the current operator using the current and optionally the
@@ -150,7 +187,7 @@ namespace Calculator
          * 
          * After calling this method, the current operator will be unset. Any observers will also
          * be notified that the calculation has changed. */
-        public void Calculate()
+        private void Evaluate()
         {
             if (_operator != null && operand.CanFinalize)
             {
@@ -164,16 +201,7 @@ namespace Calculator
                     // Variables used for readability
                     double argument = operand.Finalize();
 
-                    try
-                    {
-                        result = _operator.Calculate(argument);
-                    }
-                    catch (NotFiniteNumberException)
-                    {
-                        NotifyExceptionObserverOfNegativeSquareRoot();
-                        _operator = null;
-                        return;
-                    }
+                    result = _operator.Calculate(argument);
                 }
                 else if (_operator is BinaryOperator)
                 {
@@ -181,17 +209,7 @@ namespace Calculator
                     double firstArgument = previousOperand.Value;
                     double secondArgument = operand.Finalize();
 
-                    try
-                    {
-                        result = _operator.Calculate(firstArgument, secondArgument);
-                    }
-                    catch (DivideByZeroException)
-                    {
-                        NotifyExceptionObserversOfDivideByZero();
-                        operand = new Operand();
-                        NotifyChangeObservers();
-                        return;
-                    }
+                    result = _operator.Calculate(firstArgument, secondArgument);
                 }
                 else
                 {
@@ -202,17 +220,13 @@ namespace Calculator
                  * code. */
                 if (double.IsInfinity(result))
                 {
-                    NotifyExceptionObserversOfOverflow();
-                    _operator = null;
+                    throw new OverflowException();
                 }
                 else
                 {
                     // Create a new operand with the result of the calculation as a starting point
                     operand = new Operand(result);
-
                     _operator = null;
-
-                    NotifyChangeObservers();
                 }
             }
         }
