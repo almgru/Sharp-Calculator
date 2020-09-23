@@ -173,6 +173,10 @@ namespace Calculator
 
                 return false;
             }
+            finally
+            {
+                NotifyChangeObservers();
+            }
 
             NotifyChangeObservers();
 
