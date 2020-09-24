@@ -68,7 +68,19 @@ namespace Calculator
         // Adds 'digit' to the current operand and notifies the observers.
         public void AddDigit(int digit)
         {
-            currentOperand += digit;
+            if (CanFinalize(currentOperand)) // Logic to prevent appending to NaN and Infinity operands
+            {
+                double finalized = double.Parse(currentOperand);
+
+                if (!double.IsNaN(finalized) && !double.IsInfinity(finalized))
+                {
+                    currentOperand += digit;
+                }
+            }
+            else
+            {
+                currentOperand += digit;
+            }
 
             NotifyChangeObservers();
         }
