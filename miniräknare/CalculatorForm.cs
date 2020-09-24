@@ -173,6 +173,7 @@ namespace Calculator
             );
         }
 
+        // Handling of keyboard shortcuts.
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             switch (keyData)
@@ -277,7 +278,6 @@ namespace Calculator
                         break;
                     }
 
-                case Keys.Back:
                 case Keys.Delete:
                     {
                         ButtonClear_Click(null, null);

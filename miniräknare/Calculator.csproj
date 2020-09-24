@@ -60,7 +60,6 @@
     <Compile Include="model\IArithmeticExceptionObserver.cs" />
     <Compile Include="model\ICalculationChangedObserver.cs" />
     <Compile Include="model\Operator.cs" />
-    <Compile Include="model\Operand.cs" />
     <Compile Include="model\operators\AdditionOperator.cs" />
     <Compile Include="model\operators\DivisionOperator.cs" />
     <Compile Include="model\operators\PowerOfTwoOperator.cs" />
