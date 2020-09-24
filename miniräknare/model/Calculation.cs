@@ -1,7 +1,6 @@
 ﻿using Calculator.model;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace Calculator
 {
@@ -29,12 +28,6 @@ namespace Calculator
      * screen. */
     class Calculation
     {
-        // Variables used as shorthands for culture dependent decimal separator and negative sign
-        private static readonly string decimalSeparator =
-            CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-        private static readonly string negativeSign =
-            CultureInfo.CurrentCulture.NumberFormat.NegativeSign;
-
         // List of observers to be notified whenever the calculation is changed.
         private readonly List<ICalculationChangedObserver> changeObservers;
         private readonly List<IArithmeticExceptionObserver> arithmeticExceptionObservers;
@@ -45,7 +38,7 @@ namespace Calculator
          * operators and as the second argument to binary operators. Results are also stored in
          * this variable, because it simplifies the model and allows the user to easily append
          * numbers or decimal separators to - or change the sign of - the result. */
-        private string currentOperand;
+        private Operand operand;
 
         /* The previous, finalized, operand. For binary operators, this is used as the first
          * argument. A nullable type is used to identify whether the value is unset. */
@@ -53,34 +46,15 @@ namespace Calculator
 
         public Calculation()
         {
-            currentOperand = "";
+            operand = new Operand();
             changeObservers = new List<ICalculationChangedObserver>();
             arithmeticExceptionObservers = new List<IArithmeticExceptionObserver>();
-        }
-
-        private bool CanFinalize(string operand)
-        {
-            return operand.Length > 0 &&                    // Must be non-empty..
-                   !operand.EndsWith(decimalSeparator) &&   // ..and not be unfinished decimal nr..
-                   operand != negativeSign;                 // ..and not be unfinished negative nr.
         }
 
         // Adds 'digit' to the current operand and notifies the observers.
         public void AddDigit(int digit)
         {
-            if (CanFinalize(currentOperand)) // Logic to prevent appending to NaN and Infinity operands
-            {
-                double finalized = double.Parse(currentOperand);
-
-                if (!double.IsNaN(finalized) && !double.IsInfinity(finalized))
-                {
-                    currentOperand += digit;
-                }
-            }
-            else
-            {
-                currentOperand += digit;
-            }
+            operand.AddDigit(digit);
 
             NotifyChangeObservers();
         }
@@ -88,14 +62,7 @@ namespace Calculator
         // Adds a decimal separator to the current operand and notifies the observers.
         public void AddDecimalSeparator()
         {
-            if (currentOperand == "") // Be helpful and add omitted zeroes before decimal separator
-            {
-                currentOperand = $"0{decimalSeparator}";
-            }
-            else if (!currentOperand.Contains(decimalSeparator))
-            {
-                currentOperand += decimalSeparator;
-            }
+            operand.AddDecimalSeparator();
 
             NotifyChangeObservers();
         }
@@ -104,15 +71,7 @@ namespace Calculator
          * and notifies the observers */
         public void ChangeSign()
         {
-            // Toggle sign depending on whether it contains a negative sign
-            if (currentOperand.StartsWith(negativeSign))
-            {
-                currentOperand = currentOperand.Remove(0, 1);
-            }
-            else
-            {
-                currentOperand = currentOperand.Insert(0, negativeSign);
-            }
+            operand.ChangeSign();
 
             NotifyChangeObservers();
         }
@@ -132,7 +91,7 @@ namespace Calculator
          * Any observers are finally notified that the calculation has changed. */
         public void AddOperator(UnaryOperator op)
         {
-            if (CanFinalize(currentOperand))
+            if (operand.CanFinalize)
             {
                 // Handle any existing operator if it exists
                 if (_operator != null)
@@ -169,15 +128,15 @@ namespace Calculator
          * Any observers are finally notified that the calculation has changed. */
         public void AddOperator(BinaryOperator op)
         {
-            if (CanFinalize(currentOperand))
+            if (operand.CanFinalize)
             {
                 if (Calculate())
                 {
                     _operator = op;
 
                     // Store the current operand and create a new one
-                    previousOperand = double.Parse(currentOperand);
-                    currentOperand = "";
+                    previousOperand = operand.Finalize();
+                    operand = new Operand();
                 }
 
                 NotifyChangeObservers();
@@ -196,7 +155,7 @@ namespace Calculator
             catch (DivideByZeroException)
             {
                 NotifyExceptionObserversOfDivideByZero();
-                currentOperand = "";
+                operand = new Operand();
 
                 return false;
             }
@@ -234,7 +193,7 @@ namespace Calculator
          * be notified that the calculation has changed. */
         private void Evaluate()
         {
-            if (_operator != null && CanFinalize(currentOperand))
+            if (_operator != null && operand.CanFinalize)
             {
                 double result;
 
@@ -244,7 +203,7 @@ namespace Calculator
                 if (_operator is UnaryOperator)
                 {
                     // Variables used for readability
-                    double argument = double.Parse(currentOperand);
+                    double argument = operand.Finalize();
 
                     result = _operator.Calculate(argument);
                 }
@@ -252,7 +211,7 @@ namespace Calculator
                 {
                     // Variables used for readability
                     double firstArgument = previousOperand.Value;
-                    double secondArgument = double.Parse(currentOperand);
+                    double secondArgument = operand.Finalize();
 
                     result = _operator.Calculate(firstArgument, secondArgument);
                 }
@@ -270,7 +229,7 @@ namespace Calculator
                 else
                 {
                     // Create a new operand with the result of the calculation as a starting point
-                    currentOperand = result.ToString();
+                    operand = new Operand(result);
                     _operator = null;
                 }
             }
@@ -280,7 +239,7 @@ namespace Calculator
         public void Clear()
         {
             _operator = null;
-            currentOperand = "";
+            operand = new Operand();
             previousOperand = null;
 
             NotifyChangeObservers();
@@ -291,13 +250,13 @@ namespace Calculator
             // If no operator has ben entered, the textual representation will just be the operand
             if (_operator == null)
             {
-                return currentOperand;
+                return operand.ToString();
             }
             /* Otherwise, it will be the previous operand, followed by the operator and finally the
              * current operand */
             else
             {
-                return $"{previousOperand} {_operator} {currentOperand}";
+                return $"{previousOperand} {_operator} {operand}";
             }
         }
 
