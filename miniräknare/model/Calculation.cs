@@ -162,7 +162,15 @@ namespace Calculator
             catch (OverflowException)
             {
                 NotifyExceptionObserversOfOverflow();
-                _operator = null;
+
+                if (_operator is UnaryOperator)
+                {
+                    _operator = null;
+                }
+                else if (_operator is BinaryOperator)
+                {
+                    operand = new Operand();
+                }
 
                 return false;
             }

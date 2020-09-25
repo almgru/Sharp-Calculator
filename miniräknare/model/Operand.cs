@@ -34,19 +34,7 @@ namespace Calculator.model
 
         public void AddDigit(int digit)
         {
-            if (CanFinalize) // Logic to prevent appending to NaN and Infinity operands
-            {
-                double finalized = Finalize();
-
-                if (!double.IsNaN(finalized) && !double.IsInfinity(finalized))
-                {
-                    digits += digit;
-                }
-            }
-            else
-            {
-                digits += digit;
-            }
+            digits += digit;
         }
 
         public void AddDecimalSeparator()
