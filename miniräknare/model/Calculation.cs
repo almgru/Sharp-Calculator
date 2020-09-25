@@ -44,8 +44,6 @@ namespace Calculator
          * argument. A nullable type is used to identify whether the value is unset. */
         private double? previousOperand;
 
-        private bool replaceOperand;
-
         public Calculation()
         {
             operand = new Operand();
