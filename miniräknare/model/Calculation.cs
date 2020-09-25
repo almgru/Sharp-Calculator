@@ -5,27 +5,27 @@ using System.Collections.Generic;
 namespace Calculator
 {
     /* The central model of the application. A calculation is an abstraction of the ongoing
-     * calculation that the user makes during interaction with the calculator. It consists of
-     * a current operand, an operator and - for operators that require two operands - the previous
+     * calculation that the user makes during interaction with the calculator. It consists of a
+     * current operand, an operator and - for operators that require two operands - the previous
      * operand. Numbers, decimal separators and negative signs are part of operands, and
      * mathematical operators like plus, minus and square root are operators.
      * 
      * The core logic works like this: When the user enters a number, decimal separator or a
-     * negative sign it is added to the current operand, with the operator at that time unknown.
-     * If the user then enters a unary operator, like square root or power of two, the current
-     * operand is finalized (converted into a number) and used as the argument for the unary
-     * operator. The unary operator is immediately evaluated and the result stored in the current 
-     * operand. If the user enters a binary operator like addition or multiplication, the current
-     * operand is finalized and stored as the previous operand, which will later be used as the 
-     * first argument to the operator. A new operand is then instanciated and set as the current
-     * operand, and this operand will later be used as the second operand to the operator. The 
-     * binary operator is then finally evaluated either when the user clicks the equal button, or
-     * if they enter another operator.
+     * negative sign it is added to the current operand, with the operator at that time unknown. If
+     * the user then enters a unary operator, like square root or power of two, the current operand
+     * is finalized (converted into a number) and used as the argument for the unary operator. The
+     * unary operator is immediately evaluated and the result stored in the current operand. If the
+     * user enters a binary operator like addition or multiplication, the current operand is
+     * finalized and stored as the previous operand, which will later be used as the first argument
+     * to the operator. A new operand is then created and set as the current operand, and this
+     * operand will later be used as the second operand to the operator. The binary operator is then
+     * finally evaluated either when the user clicks the equal button, or if they enter another
+     * operator.
      * 
-     * The calculation also allows for registering observers that are notified whenever the
+     * The calculation also allows for registering observers that are notified whenever 1) the
      * calculation is changed in any way, for example if an operator is appended to or if the
-     * calculation is cleared. This is used by the main form in order to update the calculator
-     * screen. */
+     * calculation is cleared, or 2) an arithmetic exception occurs. This is used by the main form
+     * in order to update the calculator screen and show error messages. */
     class Calculation
     {
         // List of observers to be notified whenever the calculation is changed.
@@ -35,14 +35,16 @@ namespace Calculator
         private Operator _operator; // The current operator of the calculation
 
         /* The current operand of the calculation. Used as first and only argument to unary
-         * operators and as the second argument to binary operators. Results are also stored in
-         * this variable, because it simplifies the model and allows the user to easily append
-         * numbers or decimal separators to - or change the sign of - the result. */
+         * operators and as the second argument to binary operators. Results are also stored in this
+         * variable, because it simplifies the model and allows the user to easily append numbers or
+         * decimal separators to - or change the sign of - the result. */
         private Operand operand;
 
         /* The previous, finalized, operand. For binary operators, this is used as the first
          * argument. A nullable type is used to identify whether the value is unset. */
         private double? previousOperand;
+
+        private bool replaceOperand;
 
         public Calculation()
         {
@@ -88,21 +90,16 @@ namespace Calculator
          * Since 'op' is a unary operator and its operand is known at the time the operator is
          * added, it is immediately calculated and the result stored in the current operand.
          * 
-         * Any observers are finally notified that the calculation has changed. */
+         * Any change observers are finally notified that the calculation has changed. If an
+         * arithemtic exception occurs, any previous operator is not replaced, the result is not
+         * updated and any exception observers are notified.*/
         public void AddOperator(UnaryOperator op)
         {
             if (operand.CanFinalize)
             {
-                // Handle any existing operator if it exists
-                if (_operator != null)
-                {
-                    if (Calculate())
-                    {
-                        _operator = op;
-                        Calculate();
-                    }
-                }
-                else
+                /* If an existing operator exists, only update the operator and calculate the new
+                 * result if the previous operator is calculated successfully. */
+                if (_operator == null || (_operator != null && Calculate()))
                 {
                     _operator = op;
                     Calculate();
@@ -125,12 +122,14 @@ namespace Calculator
          * operator is added, its calculation is deferred until further input has been received
          * from the user.
          * 
-         * Any observers are finally notified that the calculation has changed. */
+         * Any change observers are finally notified that the calculation has changed. If an
+         * arithemtic exception occurs, any previous operator is not replaced, the result is not
+         * updated and any exception observers are notified.*/
         public void AddOperator(BinaryOperator op)
         {
             if (operand.CanFinalize)
             {
-                if (Calculate())
+                if (_operator == null || (_operator != null && Calculate()))
                 {
                     _operator = op;
 
@@ -155,7 +154,6 @@ namespace Calculator
             catch (DivideByZeroException)
             {
                 NotifyExceptionObserversOfDivideByZero();
-                operand = new Operand();
 
                 return false;
             }
@@ -163,26 +161,17 @@ namespace Calculator
             {
                 NotifyExceptionObserversOfOverflow();
 
-                if (_operator is UnaryOperator)
-                {
-                    _operator = null;
-                }
-                else if (_operator is BinaryOperator)
-                {
-                    operand = new Operand();
-                }
-
                 return false;
             }
             catch (NotFiniteNumberException)
             {
                 NotifyExceptionObserverOfNegativeSquareRoot();
-                _operator = null;
 
                 return false;
             }
             finally
             {
+                ResetAfterException(_operator);
                 NotifyChangeObservers();
             }
 
@@ -278,6 +267,18 @@ namespace Calculator
         public void AddArithmeticExceptionObserver(IArithmeticExceptionObserver observer)
         {
             arithmeticExceptionObservers.Add(observer);
+        }
+
+        private void ResetAfterException(Operator op)
+        {
+            if (_operator is UnaryOperator)
+            {
+                _operator = null;
+            }
+            else if (_operator is BinaryOperator)
+            {
+                operand = new Operand();
+            }
         }
 
         // Notifies any observers that the calculation has changed.

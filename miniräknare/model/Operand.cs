@@ -11,7 +11,8 @@ namespace Calculator.model
             CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
         private static readonly string negativeSign =
             CultureInfo.CurrentCulture.NumberFormat.NegativeSign;
-        
+
+
         private string digits;
 
         // Checks whether the operand can be finalized (converted to double)
@@ -34,18 +35,29 @@ namespace Calculator.model
 
         public void AddDigit(int digit)
         {
-            digits += digit;
+            /* Do not add digit if current operand is large enough to be represented with scientific
+             * notation, since it's unclear where the number should be appended. */
+            if (!digits.Contains("E"))
+            {
+                digits += digit;
+            }
         }
 
         public void AddDecimalSeparator()
         {
-            if (digits == "") // Be helpful and add omitted zeroes before decimal separator
+            if (!digits.Contains("E"))
             {
-                digits = $"0{decimalSeparator}";
-            }
-            else if (!digits.Contains(decimalSeparator))
-            {
-                digits += decimalSeparator;
+                // Be helpful and add omitted zeroes before decimal separator
+                if (digits == "" || digits == negativeSign)
+                {
+                    digits += "0";
+                }
+
+
+                if (!digits.Contains(decimalSeparator))
+                {
+                    digits += decimalSeparator;
+                }
             }
         }
 

@@ -5,25 +5,25 @@ using Calculator.model.operators;
 
 namespace Calculator
 {
-    /* Main form of the calculator program. Manages the state of the calculation and updates the
-     * UI.
+    /* Main form of the calculator program. Manages the state of the calculation and updates the UI.
      * 
-     * Implements ICalculationChangedObserver in order to update the calculator screen whenever
-     * the calculation model changes. */
+     * Implements ICalculationChangedObserver in order to update the calculator screen whenever the
+     * calculation model changes, and IArithmeticExceptionObserver in order to show error messages
+     * when arithmetic errors occurr. */
     public partial class CalculatorForm : 
         Form,
         ICalculationChangedObserver,
         IArithmeticExceptionObserver
     {
         /* The calculation is readonly and is in practice a singleton in the sense that only one
-         * instance of Calculation is created. Previously a new calculation was created when
-         * the clear button was clicked, since I think that makes the most sense. However, when
-         * implementing ICaluclationChangedObserver I encountered a bug that caused the screen
-         * to not update when the clear button was clicked. The bug was caused by the form (the
-         * observer) not being notified that the calculation was cleared, since the 
-         * subject-observer link was broken when a new calculation instance was created. In order
-         * to avoid duplicate code I chose to make calculation a readonly, single-instance object
-         * and implemented a Clear() function in Calculation instead. */
+         * instance of Calculation is created. Previously a new calculation was created when the
+         * clear button was clicked, since I think that makes the most sense. However, when
+         * implementing ICaluclationChangedObserver I encountered a bug that caused the screen to
+         * not update when the clear button was clicked. The bug was caused by the form (the
+         * observer) not being notified that the calculation was cleared, since the subject-observer
+         * link was broken when a new calculation instance was created. In order to avoid duplicate
+         * code I chose to make calculation a readonly, single-instance object and implemented a
+         * Clear() function in Calculation instead. */
         private readonly Calculation calculation;
 
         public CalculatorForm()
@@ -32,10 +32,13 @@ namespace Calculator
             calculation = new Calculation();
 
             /* Set up this form to be notified whenever the calculation is updated/changed. The
-             * reason for using the observer pattern here is to avoid duplicated code updating
-             * the screen in each button clicked method. */
+             * reason for using the observer pattern here is to avoid duplicated code updating the
+             * screen in each button clicked method. */
             calculation.AddChangeObserver(this);
 
+            /* Set up this form to be notified whenever an arithmetic exception occurs. See
+             * IArithmeticExceptionObserver for the kinds of exceptions that can occurr and when
+             * they occurr. */
             calculation.AddArithmeticExceptionObserver(this);
         }
 
@@ -152,14 +155,15 @@ namespace Calculator
         public void OnOverflowException()
         {
             ShowErrorDialog(
-                "Operationen resulterade i ett tal som var för stort eller för litet för att " +
-                "kunna visas."
+                "Operationen resulterade i ett tal som var för stort eller " +
+                "för litet för att kunna visas."
              );
         }
 
         public void OnNegativeSquareRootException()
         {
-            ShowErrorDialog("Roten ur negativa tal är odefinierat för reella tal.");
+            ShowErrorDialog("Roten ur negativa tal är odefinierat för reella " +
+                "tal.");
         }
 
         private void ShowErrorDialog(string message)
@@ -173,6 +177,8 @@ namespace Calculator
             );
         }
 
+        /* Handling of shortcuts. Shortcut for power of two and square root operators are currently
+         * not implemented. */
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             switch (keyData)
