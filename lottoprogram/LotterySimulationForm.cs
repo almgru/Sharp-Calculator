@@ -16,16 +16,15 @@ namespace LotterySimulation
 
     /* Main form for the lottery simulator program.
      * 
-     * The program lets the user select a lottery row, consisting of 7 unique numbers
-     * between 1 and 35, and the number of draws that should be simulated. When the user 
-     * presses the simulate button, a background task is dispatched that simulates the desired 
-     * number of draws by randomly selecting a lottery row and checking how many of the
-     * randomly generated numbers match the lottery row selected by the user. When the 
-     * simulation is complete, the number of occurrences of 5, 6 and 7 matching numbers
-     * is displayed.
+     * The program lets the user select a lottery row, consisting of 7 unique numbers between 1 and
+     * 35, and the number of draws that should be simulated. When the user presses the simulate
+     * button, a background task is dispatched that simulates the desired number of draws by
+     * randomly selecting a lottery row and checking how many of the randomly generated numbers
+     * match the lottery row selected by the user. When the simulation is complete, the number of
+     * occurrences of 5, 6 and 7 matching numbers is displayed.
      * 
-     * When the simulation is running, the user can cancel the simulation by pressing the
-     * cancel button. */
+     * When the simulation is running, the user can cancel the simulation by pressing the cancel
+     * button. */
     public partial class LotterySimulationForm : Form
     {
         private const int NR_OF_LOTTERY_NUMBERS = 7;
@@ -63,8 +62,8 @@ namespace LotterySimulation
             SetUIState(SimulationState.Running);
             stopwatch = Stopwatch.StartNew();
 
-            /* Dispatch the simulation as a background task (in order to not block the UI) and
-             * pass it the user specified lottery row and the number of draws to simulate */
+            /* Dispatch the simulation as a background task (in order to not block the UI) and pass
+             * it the user specified lottery row and the number of draws to simulate */
             SimulationWorker.RunWorkerAsync(
                 new Tuple<ICollection<int>, int>(numbers, nrOfDraws)
             );
@@ -82,8 +81,8 @@ namespace LotterySimulation
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            /* PerformSimulation throws OperationCanceledException when canceled, so this needs
-             * to be handled. */
+            /* PerformSimulation throws OperationCanceledException when canceled, so this needs to
+             * be handled. */
             try
             {
                 e.Result = PerformSimulation(worker, e);
@@ -269,9 +268,9 @@ namespace LotterySimulation
             return numbers;
         }
 
-        /* Given a collection of 7 unique numbers, simulates a lottery draw and returns the 
-         * number of matching numbers. Only returns a meaningful result if at least 'atLeast'
-         * numbers match. */
+        /* Given a collection of 7 unique numbers, simulates a lottery draw and returns the number
+         * of matching numbers. Only returns a meaningful result if at least 'atLeast' numbers
+         * match. */
         private int PerformDraw(Random random, ICollection<int> numbers, int atLeast)
         {
             int matches = 0;
@@ -307,10 +306,9 @@ namespace LotterySimulation
 
         /* Starts the simulation and perform n draws, where n is the user specified nr of draws.
          * 
-         * Returns a dictionary where the keys are numbers between 5 and 7 and the values are
-         * the number of draws that had that number of matching numbers. For example key 5 in
-         * the dictionary stores the number of simulated draws that had that had 5 matching 
-         * numbers.
+         * Returns a dictionary where the keys are numbers between 5 and 7 and the values are the
+         * number of draws that had that number of matching numbers. For example key 5 in the
+         * dictionary stores the number of simulated draws that had that had 5 matching numbers.
          * 
          * Throws OperationCanceledException if the user cancels the simulation. */
         private Dictionary<int, int> PerformSimulation(BackgroundWorker worker, DoWorkEventArgs e)
@@ -338,10 +336,10 @@ namespace LotterySimulation
                 // Cancel the task if the user has pressed the cancel button.
                 if (worker.CancellationPending)
                 {
-                    /* Abort the task by raising an exception. We could have just breaked out of
-                     * the loop and it would have the same effect. That would have returned a
-                     * result though, which I feel is the wrong approach. Returning null would
-                     * also work, but I think it's more explicit to raise an exception. */
+                    /* Abort the task by raising an exception. We could have just breaked out of the
+                     * loop and it would have the same effect. That would have returned a result
+                     * though, which I feel is the wrong approach. Returning null would also work,
+                     * but I think it's more explicit to raise an exception. */
                     throw new OperationCanceledException();
                 }
                 else // Otherwise, simulate a lottery draw and report progress
