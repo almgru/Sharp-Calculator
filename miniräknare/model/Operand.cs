@@ -3,7 +3,7 @@
 namespace Calculator.model
 {
     /* An operand is an instance of an argument to an operator. It is stored as a string
-     * until it can be finalized into a double. */
+     * until it can be parsed into a double. */
     class Operand
     {
         // Variables used as shorthands for culture dependent decimal separator and negative sign
@@ -15,8 +15,8 @@ namespace Calculator.model
 
         private string digits;
 
-        // Checks whether the operand can be finalized (converted to double)
-        public bool CanFinalize => (
+        // Checks whether the operand can be parsed to a double
+        public bool CanParse => (
             digits.Length > 0 &&                    // Must be non-empty..
             !digits.EndsWith(decimalSeparator) &&   // ..and not be unfinished decimal nr..
             digits != negativeSign                  // ..and not be unfinished negative nr.
@@ -75,7 +75,7 @@ namespace Calculator.model
         }
 
         // Convert the operand to a double
-        public double Finalize()
+        public double Parse()
         {
             return double.Parse(digits.ToString());
         }

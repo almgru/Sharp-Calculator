@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+
 using Calculator.model;
 using Calculator.model.operators;
 
@@ -16,14 +17,7 @@ namespace Calculator
         IArithmeticExceptionObserver
     {
         /* The calculation is readonly and is in practice a singleton in the sense that only one
-         * instance of Calculation is created. Previously a new calculation was created when the
-         * clear button was clicked, since I think that makes the most sense. However, when
-         * implementing ICaluclationChangedObserver I encountered a bug that caused the screen to
-         * not update when the clear button was clicked. The bug was caused by the form (the
-         * observer) not being notified that the calculation was cleared, since the subject-observer
-         * link was broken when a new calculation instance was created. In order to avoid duplicate
-         * code I chose to make calculation a readonly, single-instance object and implemented a
-         * Clear() function in Calculation instead. */
+         * instance of Calculation is created. */
         private readonly Calculation calculation;
 
         public CalculatorForm()
