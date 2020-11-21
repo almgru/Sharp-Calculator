@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LotterySimulation")]
+[assembly: AssemblyTitle("Sharp-Calculator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LotterySimulation")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyProduct("Sharp-Calculator")]
+[assembly: AssemblyCopyright("Copyright © Daniel Alm Grundström 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("068c03c8-5483-4db5-8105-dd4f3cf27416")]
+[assembly: Guid("d86d67e7-5625-43f4-a568-893e4e734f9d")]
 
 // Version information for an assembly consists of the following four values:
 //
