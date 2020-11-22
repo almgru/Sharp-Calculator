@@ -143,21 +143,23 @@ namespace Calculator
 
         public void OnDivideByZeroException()
         {
-            ShowErrorDialog("Division med noll är odefinierat.");
+            ShowErrorDialog("Division by zero is undefined.");
         }
 
         public void OnOverflowException()
         {
             ShowErrorDialog(
-                "Operationen resulterade i ett tal som var för stort eller " +
-                "för litet för att kunna visas."
+                "The operation resulted in a number that was too big or too" +
+                "small."
              );
         }
 
         public void OnNegativeSquareRootException()
         {
-            ShowErrorDialog("Roten ur negativa tal är odefinierat för reella " +
-                "tal.");
+            ShowErrorDialog(
+                "The square root of negative numbers is undefined for real " +
+                "numbers."
+            );
         }
 
         private void ShowErrorDialog(string message)
@@ -165,7 +167,7 @@ namespace Calculator
             MessageBox.Show(
                 this,
                 message,
-                "Felmeddelande",
+                "Error Message",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );
